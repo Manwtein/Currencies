@@ -8,6 +8,6 @@ import ru.startandroid.currencies.model.Response;
 public interface ApiService {
 
     @GET("/scripts/XML_daily.asp")
-    Call<Response> getValutes(@Query("date_req") String sdf);
+    Call<Response> getValutes(@Query("date_req") String dateReq);
 
 }

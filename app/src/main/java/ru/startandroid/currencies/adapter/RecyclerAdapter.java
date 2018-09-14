@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ru.startandroid.currencies.MainActivity;
 import ru.startandroid.currencies.R;
 import ru.startandroid.currencies.model.Valute;
 
