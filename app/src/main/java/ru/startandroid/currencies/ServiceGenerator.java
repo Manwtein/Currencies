@@ -1,25 +1,31 @@
 package ru.startandroid.currencies;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class ServiceGenerator {
-
     private static final String BASE_URL = "http://www.cbr.ru";
+    private static ApiService apiService;
+    private static ServiceGenerator instance = null;
 
-    private static Retrofit.Builder builder =
-            new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(SimpleXmlConverterFactory.create());
+    public static ServiceGenerator getInstance(){
+        if (instance == null) instance = new ServiceGenerator();
+        return instance;
+    }
 
-    private static Retrofit retrofit = builder.build();
+    private ServiceGenerator() {
+        buildRetrofit(BASE_URL);
+    }
 
-    private static OkHttpClient.Builder httpClient =
-            new OkHttpClient.Builder();
+    private void buildRetrofit(String base_url){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(base_url)
+                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .build();
+        apiService = retrofit.create(ApiService.class);
+    }
 
-    public static <S> S createService(
-            Class<S> serviceClass) {
-        return retrofit.create(serviceClass);
+    public static ApiService getApiService() {
+        return apiService;
     }
 }

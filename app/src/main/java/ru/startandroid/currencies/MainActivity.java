@@ -65,53 +65,52 @@ public class MainActivity extends AppCompatActivity {
     private void startRequest()  {
         Log.i(TAG, "startRequest: ");
 
-            ApiService apiService = ServiceGenerator.createService(ApiService.class);
+        ServiceGenerator serviceGenerator = ServiceGenerator.getInstance();
 
-            callYestDay = apiService.getValutes(lastDay);
+        callYestDay = serviceGenerator.getApiService().getValutes(lastDay);
 
-            callYestDay
-                    .enqueue(new Callback<Response>() {
-                @Override
-                public void onResponse(Call<Response> call,
-                                       @NonNull retrofit2.Response<Response> response) {
-                    if (response.isSuccessful()) {
-                        responseYest = response.body();
-                        listValutesYest = responseYest.getValutes();
+        callYestDay
+                .enqueue(new Callback<Response>() {
+            @Override
+            public void onResponse(Call<Response> call,
+                                   @NonNull retrofit2.Response<Response> response) {
+                if (response.isSuccessful()) {
+                    responseYest = response.body();
+                    listValutesYest = responseYest.getValutes();
 
-                        if (listValutesYest == null) return;
-                        recyclerAdapter.setListValutesYest(listValutesYest);
-                    }
+                    if (listValutesYest == null) return;
+                    recyclerAdapter.setListValutesYest(listValutesYest);
                 }
+            }
 
-                @Override
-                public void onFailure(Call<Response> call, Throwable t) {
+            @Override
+            public void onFailure(Call<Response> call, Throwable t) {
 
+            }
+        });
+
+
+        callToday = serviceGenerator.getApiService().getValutes(null);
+        callToday
+                .enqueue(new Callback<Response>() {
+            @Override
+            public void onResponse(Call<Response> call,
+                                   retrofit2.Response<Response> response) {
+                if (response.isSuccessful()) {
+                    responseDay = response.body();
+                    listValutesToday = responseDay.getValutes();
+
+                    if (listValutesToday == null) return;
+                    recyclerAdapter.setListValutesToday(listValutesToday);
                 }
-            });
+            }
 
+            @Override
+            public void onFailure(Call<Response> call, Throwable t) {
 
-
-            callToday = apiService.getValutes(null);
-            callToday
-                    .enqueue(new Callback<Response>() {
-                @Override
-                public void onResponse(Call<Response> call,
-                                       retrofit2.Response<Response> response) {
-                    if (response.isSuccessful()) {
-                        responseDay = response.body();
-                        listValutesToday = responseDay.getValutes();
-
-                        if (listValutesToday == null) return;
-                        recyclerAdapter.setListValutesToday(listValutesToday);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Response> call, Throwable t) {
-
-                }
-            });
-        }
+            }
+        });
+    }
 
     private void getLastDay() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
