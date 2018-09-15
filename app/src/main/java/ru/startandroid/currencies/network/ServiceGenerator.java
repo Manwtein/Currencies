@@ -1,11 +1,11 @@
-package ru.startandroid.currencies;
+package ru.startandroid.currencies.network;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class ServiceGenerator {
-    private static final String BASE_URL = "http://www.cbr.ru";
-    private static ApiService apiService;
+    private final String BASE_URL = "http://www.cbr.ru";
+    private ApiService apiService;
     private static ServiceGenerator instance = null;
 
     public static ServiceGenerator getInstance(){
@@ -25,7 +25,7 @@ public class ServiceGenerator {
         apiService = retrofit.create(ApiService.class);
     }
 
-    public static ApiService getApiService() {
+    public ApiService getApiService() {
         return apiService;
     }
 }
