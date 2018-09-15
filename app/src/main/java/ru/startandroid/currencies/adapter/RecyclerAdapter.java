@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +24,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     final int positive = R.mipmap.ic_find_previous_holo_dark;
     final int negative = R.mipmap.ic_find_next_holo_dark;
 
+    int i = 0;
+
 
     private List<Valute> listValutesToday = new ArrayList<>();
 
     private List<Valute> listValutesYest = new ArrayList<>();
 
+    private OnValuteClickListener onValuteClickListener;
+
+    public RecyclerAdapter(OnValuteClickListener onValuteClickListener){
+        this.onValuteClickListener = onValuteClickListener;
+    }
+
     @Override
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        i++;
+//        Log.i("myLogs", "onCreateViewHolder: " + i);
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.my_list, parent, false);
         return new RecyclerViewHolder(view);
@@ -37,6 +48,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
+//        Log.i("myLogs", "onBindViewHolder: " + position);
         holder.bind(position);
     }
 
@@ -71,6 +83,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             value = itemView.findViewById(R.id.tvValue);
             date = itemView.findViewById(R.id.tvDate);
             image = itemView.findViewById(R.id.imgArrow);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i("myLogs", "onClick: " + this);
+                    Valute valute = listValutesToday.get(getLayoutPosition());
+                    onValuteClickListener.onValuteClick(valute);
+                }
+            });
         }
 
         public void bind(int position){
@@ -111,5 +132,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                 }
             }
         }
+
     }
+
+    public interface OnValuteClickListener {
+        void onValuteClick(Valute valute);
+    }
+
 }
