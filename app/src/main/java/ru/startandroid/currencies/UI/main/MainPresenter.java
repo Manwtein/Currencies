@@ -27,10 +27,6 @@ public class MainPresenter
 
     private final String FORMAT_DATE = "dd.MM.yyyy";
 
-
-    public MainPresenter() {
-    }
-
     private String getYesterday() {
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
         Calendar calendar = new GregorianCalendar();
