@@ -13,7 +13,9 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import ru.startandroid.currencies.R;
@@ -22,8 +24,14 @@ import ru.startandroid.currencies.model.Valute;
 public class RecyclerAdapter
         extends RecyclerView.Adapter<RecyclerAdapter.RecyclerViewHolder>{
 
-    final int positive = R.mipmap.ic_find_previous_holo_dark;
-    final int negative = R.mipmap.ic_find_next_holo_dark;
+    private final int positive = R.mipmap.ic_find_previous_holo_dark;
+    private final int negative = R.mipmap.ic_find_next_holo_dark;
+
+    private final String FORMAT_DATE = "dd.MM.yyyy";
+    private final String RUB = "  RUB";
+    private final String DATA_TODAY = "Данные на: ";
+
+    private String dateTodayString = "";
 
     private List<Valute> listValutesToday = new ArrayList<>();
 
@@ -34,6 +42,10 @@ public class RecyclerAdapter
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.my_list, parent, false);
         return new RecyclerViewHolder(view);
+    }
+
+    public RecyclerAdapter() {
+        setDate();
     }
 
     @Override
@@ -55,6 +67,23 @@ public class RecyclerAdapter
         this.listValutesYest = listValutesYest;
     }
 
+
+    private void setDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
+        Calendar calendar = new GregorianCalendar();
+
+        if (calendar.get(Calendar.HOUR_OF_DAY) > 11) {
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        else if (calendar.get(Calendar.HOUR_OF_DAY) == 11)
+        {
+            if (calendar.get(Calendar.MINUTE) > 30)
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        dateTodayString = DATA_TODAY + sdf.format(calendar.getTime());
+    }
+
     class RecyclerViewHolder extends RecyclerView.ViewHolder{
 
         private TextView name;
@@ -71,15 +100,11 @@ public class RecyclerAdapter
         }
 
         public void bind(int position){
+            String valueString = listValutesToday.get(position).getValue() + RUB;
+
             name.setText(listValutesToday.get(position).getCharCode());
-            value.setText(listValutesToday.get(position).getValue() + "  RUB");
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-            Date myDate = new Date();
-            long myDateLong = myDate.getTime() + 45_000_000L;
-            if (myDate.getTime() > 41_400_000L){
-                myDate.setTime(myDateLong); // Прибавляем 12,5 часов к текущему времени т.к. данные в ЦБ обновляются в 11:30 по МСК
-            }
-            date.setText("Данные на: " + sdf.format(myDate));
+            value.setText(valueString);
+            date.setText(dateTodayString);
             setImages(position);
         }
 

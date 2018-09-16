@@ -7,7 +7,9 @@ import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -23,18 +25,29 @@ public class MainPresenter
     private List<Valute> listValutesToday;
     private List<Valute> listValutesYest;
 
-    private String yesterday;
+    private final String FORMAT_DATE = "dd.MM.yyyy";
 
 
     public MainPresenter() {
-        getYesterday();
     }
 
-    private void getYesterday() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        Date date = new Date();
-        date.setTime(date.getTime() - 41_400_000L); // Отнимаем от текущего времени 11.5 часов т.к. ЦБ обновляется курс валют в 11:30
-        yesterday = sdf.format(date);
+    private String getYesterday() {
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
+        Calendar calendar = new GregorianCalendar();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+
+        if (day == Calendar.SUNDAY
+                || day == Calendar.SATURDAY) {
+            calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        }
+        else if (calendar.get(Calendar.HOUR_OF_DAY) < 11){
+                calendar.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        else if (calendar.get(Calendar.HOUR_OF_DAY) == 11){
+            if (calendar.get(Calendar.MINUTE) < 30)
+                calendar.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        return sdf.format(calendar.getTime());
     }
 
     @Override
@@ -55,7 +68,7 @@ public class MainPresenter
 
         serviceGenerator
                 .getApiService()
-                .getValutes(yesterday)
+                .getValutes(getYesterday())
                 .enqueue(new Callback<Response>() {
                     @Override
                     public void onResponse(Call<Response> call,
