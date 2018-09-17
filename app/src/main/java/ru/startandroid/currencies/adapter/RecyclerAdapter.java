@@ -72,12 +72,7 @@ public class RecyclerAdapter
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
         Calendar calendar = new GregorianCalendar();
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) > 11) {
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-        else if (calendar.get(Calendar.HOUR_OF_DAY) == 11)
-        {
-            if (calendar.get(Calendar.MINUTE) > 30)
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= 14) {
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 

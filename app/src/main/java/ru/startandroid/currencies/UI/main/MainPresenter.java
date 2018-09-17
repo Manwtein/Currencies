@@ -35,20 +35,12 @@ public class MainPresenter
         if (day == Calendar.SUNDAY
                 || day == Calendar.SATURDAY) {
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); }
-        else if (day == Calendar.MONDAY) {
-            if (calendar.get(Calendar.HOUR_OF_DAY) == 11) {
-                if (calendar.get(Calendar.MINUTE) < 30)
+        else if (day == Calendar.MONDAY)
+            if (calendar.get(Calendar.HOUR_OF_DAY) < 14) {
                     calendar.add(Calendar.WEEK_OF_MONTH, -1);
                     calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); }
-                else if (calendar.get(Calendar.HOUR_OF_DAY) < 11){
-                calendar.add(Calendar.WEEK_OF_MONTH, -1);
-                calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); } }
-        else if (calendar.get(Calendar.HOUR_OF_DAY) < 11) {
+        else if (calendar.get(Calendar.HOUR_OF_DAY) < 14) {
                 calendar.add(Calendar.DAY_OF_MONTH, -1); }
-        else if (calendar.get(Calendar.HOUR_OF_DAY) == 11) {
-                if (calendar.get(Calendar.MINUTE) < 30)
-                    calendar.add(Calendar.DAY_OF_MONTH, -1); }
-
 
         return sdf.format(calendar.getTime());
         }
