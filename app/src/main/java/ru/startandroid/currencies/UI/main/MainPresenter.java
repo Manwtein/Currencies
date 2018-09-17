@@ -49,6 +49,7 @@ public class MainPresenter
                 if (calendar.get(Calendar.MINUTE) < 30)
                     calendar.add(Calendar.DAY_OF_MONTH, -1); }
 
+
         return sdf.format(calendar.getTime());
         }
 
