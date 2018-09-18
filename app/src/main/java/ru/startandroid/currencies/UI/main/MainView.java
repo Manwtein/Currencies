@@ -2,6 +2,7 @@ package ru.startandroid.currencies.UI.main;
 
 import com.arellomobile.mvp.MvpView;
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy;
+import com.arellomobile.mvp.viewstate.strategy.SkipStrategy;
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 
 import java.util.List;
@@ -16,4 +17,7 @@ public interface MainView
 
     @StateStrategyType(AddToEndSingleStrategy.class)
     void setListValutesYest(List<Valute> valutes);
+
+    @StateStrategyType(SkipStrategy.class)
+    void showBtnForRetry();
 }

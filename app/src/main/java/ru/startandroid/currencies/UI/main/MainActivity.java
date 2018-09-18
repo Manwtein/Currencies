@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -26,6 +27,7 @@ public class MainActivity
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
     private LinearLayout linearLoading;
+    private Button btnRetry;
 
     @InjectPresenter
     MainPresenter mainPresenter;
@@ -40,6 +42,7 @@ public class MainActivity
     private void init(){
         linearLoading = findViewById(R.id.linearLoading);
         recyclerView = findViewById(R.id.recycler_view);
+        btnRetry = findViewById(R.id.btnRetry);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
                 layoutManager.getOrientation());
@@ -61,5 +64,22 @@ public class MainActivity
     public void setListValutesYest(List<Valute> valutes) {
         recyclerAdapter.setListValutesYest(valutes);
         recyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showBtnForRetry() {
+        linearLoading.setVisibility(View.GONE);
+        btnRetry.setVisibility(View.VISIBLE);
+        Toast.makeText(this,
+                "An error has occurred.\n"
+                        + "Try once more",
+                Toast.LENGTH_LONG)
+                .show();
+    }
+
+    public void onClickForRetry(View view) {
+        mainPresenter.attachView(this);
+        btnRetry.setVisibility(View.GONE);
+        linearLoading.setVisibility(View.VISIBLE);
     }
 }

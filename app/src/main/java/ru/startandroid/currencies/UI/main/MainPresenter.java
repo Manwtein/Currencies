@@ -1,9 +1,12 @@
 package ru.startandroid.currencies.UI.main;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
+
+import org.reactivestreams.Publisher;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,8 +14,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableSingleObserver;
 import ru.startandroid.currencies.model.Response;
 import ru.startandroid.currencies.model.Valute;
@@ -59,26 +65,26 @@ public class MainPresenter
     }
 
     public void startRequestFirst() {
+        Log.i("myLogs", "startRequestFirst: ");
         disposableFirstObs = new DisposableSingleObserver<Response>() {
             @Override
             public void onSuccess(Response response) {
                 listValutesToday = response.getValutes();
                 dateTodayString = response.getDate();
-
-
                 startRequestSecond();
             }
 
             @Override
             public void onError(Throwable e) {
+                getViewState().showBtnForRetry();
             }
         };
 
         ServiceGenerator.getInstance()
                 .getApiService()
                 .getValutes(null)
+                .retryWhen(throwableFlowable -> throwableFlowable.take(5).delay(2, TimeUnit.SECONDS))
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry()
                 .subscribe(disposableFirstObs);
     }
 
@@ -94,14 +100,15 @@ public class MainPresenter
 
             @Override
             public void onError(Throwable e) {
+                getViewState().showBtnForRetry();
             }
         };
 
         ServiceGenerator.getInstance()
                 .getApiService()
                 .getValutes(getYesterday())
+                .retryWhen(throwableFlowable -> throwableFlowable.take(5).delay(2, TimeUnit.SECONDS))
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry()
                 .subscribe(disposableSecondObs);
     }
 
