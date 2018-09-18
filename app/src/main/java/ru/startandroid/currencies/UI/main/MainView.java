@@ -12,7 +12,7 @@ public interface MainView
         extends MvpView{
 
     @StateStrategyType(AddToEndSingleStrategy.class)
-    void setListValutesToday(List<Valute> valutes);
+    void setListValutesToday(List<Valute> valutes, String dateYest);
 
     @StateStrategyType(AddToEndSingleStrategy.class)
     void setListValutesYest(List<Valute> valutes);

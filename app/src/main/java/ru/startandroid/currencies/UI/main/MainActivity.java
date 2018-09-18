@@ -50,10 +50,10 @@ public class MainActivity
     }
 
     @Override
-    public void setListValutesToday(List<Valute> valutes) {
+    public void setListValutesToday(List<Valute> valutes, String dateYest) {
         recyclerView.setVisibility(View.VISIBLE);
         linearLoading.setVisibility(View.GONE);
-        recyclerAdapter.setListValutesToday(valutes);
+        recyclerAdapter.setListValutesToday(valutes, dateYest);
         recyclerAdapter.notifyDataSetChanged();
     }
 

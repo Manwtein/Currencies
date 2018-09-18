@@ -27,7 +27,6 @@ public class RecyclerAdapter
     private final int positive = R.mipmap.ic_find_previous_holo_dark;
     private final int negative = R.mipmap.ic_find_next_holo_dark;
 
-    private final String FORMAT_DATE = "dd.MM.yyyy";
     private final String RUB = "  RUB";
     private final String DATA_TODAY = "Данные на: ";
 
@@ -45,7 +44,6 @@ public class RecyclerAdapter
     }
 
     public RecyclerAdapter() {
-        setDate();
     }
 
     @Override
@@ -59,24 +57,13 @@ public class RecyclerAdapter
         return listValutesToday.size();
     }
 
-    public void setListValutesToday(List<Valute> listValutesToday) {
+    public void setListValutesToday(List<Valute> listValutesToday, String dateTodayString) {
         this.listValutesToday = listValutesToday;
+        this.dateTodayString = dateTodayString;
     }
 
     public void setListValutesYest(List<Valute> listValutesYest) {
         this.listValutesYest = listValutesYest;
-    }
-
-
-    private void setDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
-        Calendar calendar = new GregorianCalendar();
-
-        if (calendar.get(Calendar.HOUR_OF_DAY) >= 14) {
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        dateTodayString = DATA_TODAY + sdf.format(calendar.getTime());
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder{
@@ -99,7 +86,7 @@ public class RecyclerAdapter
 
             name.setText(listValutesToday.get(position).getCharCode());
             value.setText(valueString);
-            date.setText(dateTodayString);
+            date.setText(DATA_TODAY + dateTodayString);
             setImages(position);
         }
 

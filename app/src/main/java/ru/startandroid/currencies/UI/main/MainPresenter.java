@@ -1,19 +1,19 @@
 package ru.startandroid.currencies.UI.main;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
 import ru.startandroid.currencies.model.Response;
 import ru.startandroid.currencies.model.Valute;
 import ru.startandroid.currencies.network.ServiceGenerator;
@@ -26,22 +26,23 @@ public class MainPresenter
     private List<Valute> listValutesYest;
 
     private final String FORMAT_DATE = "dd.MM.yyyy";
+    private String dateTodayString = "";
+
+    private DisposableSingleObserver disposableFirstObs;
+    private DisposableSingleObserver disposableSecondObs;
 
     private String getYesterday() {
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_DATE);
         Calendar calendar = new GregorianCalendar();
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
 
-        if (day == Calendar.SUNDAY
-                || day == Calendar.SATURDAY) {
-            calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); }
-        else if (day == Calendar.MONDAY)
-            if (calendar.get(Calendar.HOUR_OF_DAY) < 14) {
-                    calendar.add(Calendar.WEEK_OF_MONTH, -1);
-                    calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); }
-        else if (calendar.get(Calendar.HOUR_OF_DAY) < 14) {
-                calendar.add(Calendar.DAY_OF_MONTH, -1); }
-
+        Date date = null;
+        try {
+            date = sdf.parse(dateTodayString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
         return sdf.format(calendar.getTime());
         }
 
@@ -49,7 +50,7 @@ public class MainPresenter
     public void attachView(MainView view) {
         super.attachView(view);
         if (listValutesYest == null
-                && listValutesToday == null) startRequest();
+                && listValutesToday == null) startRequestFirst();
     }
 
     @Override
@@ -57,48 +58,59 @@ public class MainPresenter
         super.onFirstViewAttach();
     }
 
-    public void startRequest() {
+    public void startRequestFirst() {
+        disposableFirstObs = new DisposableSingleObserver<Response>() {
+            @Override
+            public void onSuccess(Response response) {
+                listValutesToday = response.getValutes();
+                dateTodayString = response.getDate();
 
-        ServiceGenerator serviceGenerator = ServiceGenerator.getInstance();
 
-        serviceGenerator
-                .getApiService()
-                .getValutes(getYesterday())
-                .enqueue(new Callback<Response>() {
-                    @Override
-                    public void onResponse(Call<Response> call,
-                                           @NonNull retrofit2.Response<Response> response) {
-                        if (response.isSuccessful()) {
-                            listValutesYest = response.body().getValutes();
+                startRequestSecond();
+            }
 
-                            getViewState().setListValutesYest(listValutesYest);
-                        }
-                    }
+            @Override
+            public void onError(Throwable e) {
+            }
+        };
 
-                    @Override
-                    public void onFailure(Call<Response> call, Throwable t) {
-
-                    }
-                });
-
-        serviceGenerator
+        ServiceGenerator.getInstance()
                 .getApiService()
                 .getValutes(null)
-                .enqueue(new Callback<Response>() {
-                    @Override
-                    public void onResponse(Call<Response> call,
-                                           retrofit2.Response<Response> response) {
-                        if (response.isSuccessful()) {
-                            listValutesToday = response.body().getValutes();
+                .observeOn(AndroidSchedulers.mainThread())
+                .retry()
+                .subscribe(disposableFirstObs);
+    }
 
-                            getViewState().setListValutesToday(listValutesToday);
-                        }
-                    }
+    private void startRequestSecond() {
+        disposableSecondObs = new DisposableSingleObserver<Response>() {
+            @Override
+            public void onSuccess(Response response) {
+                listValutesYest = response.getValutes();
+                getViewState().setListValutesToday(listValutesToday,
+                        dateTodayString);
+                getViewState().setListValutesYest(listValutesYest);
+            }
 
-                    @Override
-                    public void onFailure(Call<Response> call, Throwable t) {
+            @Override
+            public void onError(Throwable e) {
+            }
+        };
 
-                    }
-                });
+        ServiceGenerator.getInstance()
+                .getApiService()
+                .getValutes(getYesterday())
+                .observeOn(AndroidSchedulers.mainThread())
+                .retry()
+                .subscribe(disposableSecondObs);
+    }
+
+    @Override
+    public void detachView(MainView view) {
+        super.detachView(view);
+        if (disposableFirstObs != null)
+            disposableFirstObs.dispose();
+        if (disposableSecondObs != null)
+            disposableSecondObs.dispose();
     }
 }
